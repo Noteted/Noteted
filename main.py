@@ -26,12 +26,11 @@ def fetchUserVer():
             return versionText
 
 def fetchLatestGitVer():
-    response = requests.get("https://raw.githubusercontent.com/Daveberry-Stuff/Noteted/main/gitver.txt")
+    response = requests.get("https://raw.githubusercontent.com/Noteted/Noteted/main/gitver.txt")
     response.raise_for_status()
     return response.text
 
 def startNoteted():
-    print("User's version is up to date.")
     if not os.path.exists(settings.settingsFile):
         print("First time use detected, running setup...")
         firstTimeUse.initializeFirstTimeUI()

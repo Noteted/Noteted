@@ -41,7 +41,7 @@ def initializeUI():
     openedFileButton = {"button": None}
 
     # say hi to sidebarFrame AND topbarFrame because it's here to fix the FUCKING aligment :333
-    topbarFrame = topbar(root)
+    topbarFrame = topBar(root)
     sidebarFrame = sidebar(root)
 
     mainContentFrame = ctk.CTkFrame(root, fg_color="transparent")
@@ -85,6 +85,7 @@ def initializeUI():
     bindKeybinds(root, reloadCallback, updatePreviewWrapper, saver, None)
 
     buttons(topbarFrame, reloadCallback, root)
+    topBarText(topbarFrame)
     root.mainloop()    
 
 if __name__ == "__main__":
@@ -112,14 +113,13 @@ def recolorImage(image_path, color="#FFFFFF"):
     img.paste(color_img, (0, 0), mask=img.split()[3])
     return img
 
-def topbar(root):
+def topBar(root):
     topbar = ctk.CTkFrame(root, height=50, width=400, corner_radius=0, fg_color=themeHandler.getThemePart("frame"))
     topbar.pack(side="top", fill="x")
     topbar.pack_propagate(False)
 
     return topbar
 
-# hey don't worry, i'm gonna organize everything w/ arrays whenever i have the motivation to do so lmao
 def buttons(frame, reloadList, root):
     iconSize = (20, 20)
     buttonSize = 30
@@ -158,7 +158,9 @@ def buttons(frame, reloadList, root):
             _button = ctk.CTkButton(buttonFrame, text=buttonText, command=buttonCommand, width=85, text_color=themeHandler.getThemePart("text"), fg_color=themeHandler.getThemePart("accent"), hover_color=themeHandler.getThemePart("hover"))
         _button.pack(side="left", expand=False, padx=(20, 0))
         
-    
+def topBarText(parent):
+    workspaceLabel = ctk.CTkLabel(parent, text="Test", text_color=themeHandler.getThemePart("text"))
+    workspaceLabel.pack(padx=10, side="left")
 
 def sidebar(root):
     sidebar = ctk.CTkScrollableFrame(root, width=200, corner_radius=10,
