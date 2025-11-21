@@ -2,8 +2,6 @@ import customtkinter as ctk
 import tkinter as tk
 import os
 import sys
-import time
-from tkinter import filedialog, messagebox
 from PIL import Image, ImageColor
 import src.backend.discord as dcPresence
 import src.backend.getFromJSON as getJson
@@ -45,7 +43,7 @@ def initializeUI():
     sidebarFrame = sidebar(root)
 
     mainContentFrame = ctk.CTkFrame(root, fg_color="transparent")
-    mainContentFrame.pack(pady=10, padx=0, expand=True, fill="both", side="left")
+    mainContentFrame.pack(pady=10, padx=(0, 10), expand=True, fill="both", side="left")
 
     writingBox2 = textbox(mainContentFrame)
 
@@ -86,7 +84,7 @@ def initializeUI():
 
     buttons(topbarFrame, reloadCallback, root)
     topBarText(topbarFrame)
-    root.mainloop()    
+    root.mainloop()
 
 if __name__ == "__main__":
     initializeUI()
@@ -94,13 +92,13 @@ if __name__ == "__main__":
 # ===== button functions stuff =====
 def funcOptionsButton(root):
     NTDwindow.settings(root)
-    
+
 def funcNewFileButton(reloadList):
     NTDwindow.newFile(reloadList)
-    
+
 def funcInfoButton():
     NTDwindow.info()
-    
+
 # ===== other ui stuff =====
 # thanks gemini code assist! you're great :3
 def recolorImage(image_path, color="#FFFFFF"):
@@ -123,10 +121,10 @@ def topBar(root):
 def buttons(frame, reloadList, root):
     iconSize = (20, 20)
     buttonSize = 30
-    
+
     buttonFrame = ctk.CTkFrame(frame, fg_color="transparent")
     buttonFrame.pack(pady=10, padx=10, fill="x")
-    
+
     initializeButtons = [
         {
             "iconPath": "tool",
@@ -144,12 +142,12 @@ def buttons(frame, reloadList, root):
             "text": "Info"
         }
     ]
-    
+
     for button_info in initializeButtons:
         buttonIcon = button_info["iconPath"]
         buttonCommand = button_info["command"]
         buttonText = button_info["text"]
-    
+
         _iconPath = pathHandler.iconsPath("buttons", buttonIcon + ".png")
         if os.path.exists(_iconPath): # type: ignore
             _buttonIcon = ctk.CTkImage(recolorImage(_iconPath, color=themeHandler.getThemePart("button")), size=iconSize) # type: ignore
@@ -157,20 +155,49 @@ def buttons(frame, reloadList, root):
         else:
             _button = ctk.CTkButton(buttonFrame, text=buttonText, command=buttonCommand, width=85, text_color=themeHandler.getThemePart("text"), fg_color=themeHandler.getThemePart("accent"), hover_color=themeHandler.getThemePart("hover"))
         _button.pack(side="left", expand=False, padx=(20, 0))
-        
+
 def topBarText(parent):
     workspaceLabel = ctk.CTkLabel(parent, text="Test", text_color=themeHandler.getThemePart("text"))
     workspaceLabel.pack(padx=10, side="left")
 
 def sidebar(root):
-    sidebar = ctk.CTkScrollableFrame(root, width=200, corner_radius=10,
-                           fg_color=themeHandler.getThemePart("frame"))
-    sidebar.pack(pady=10, padx=10, side="left", fill="both")
-    
-    return sidebar
+    sidebarContainer = ctk.CTkFrame(root, fg_color="transparent")
+    sidebarContainer.pack(pady=10, padx=(10, 0), side="left", fill="y")
+
+    sidebarFrame = ctk.CTkScrollableFrame(sidebarContainer, width=200, corner_radius=10,
+                                         fg_color=themeHandler.getThemePart("frame"))
+    sidebarFrame.pack(side="left", fill="both", expand=True)
+
+    # funny dragging things because some people (like me) like to name our files with long names :3c
+    # also because gemini code assist helped me with this :3 (I'M TOO DUMB TO FIGURE IT OUT MYSELF)
+    resizer = ctk.CTkFrame(sidebarContainer, width=4, cursor="sb_h_double_arrow")
+    resizer.pack(side="left", fill="y", padx=2)
+
+    dragState = {"x": 0}
+
+    def onDrag(event):
+        dx = event.x_root - dragState["x"]
+        currentWidth = sidebarFrame.winfo_width()
+        newWidth = currentWidth + dx
+        if 150 <= newWidth <= 600:
+            sidebarFrame.configure(width=newWidth)
+        dragState["x"] = event.x_root
+
+    def onButtonRelease(event):
+        root.unbind("<B1-Motion>")
+        root.unbind("<ButtonRelease-1>")
+
+    def onButtonPress(event):
+        dragState["x"] = event.x_root
+        root.bind("<B1-Motion>", onDrag)
+        root.bind("<ButtonRelease-1>", onButtonRelease)
+
+    resizer.bind("<ButtonPress-1>", onButtonPress)
+
+    return sidebarFrame
 
 def textbox(parent):
-    writingbox = ctk.CTkTextbox(parent, width=400, height=300, corner_radius=10,
+    writingbox = ctk.CTkTextbox(parent, width=400, height=300, corner_radius=10, wrap="word",
                                 fg_color=themeHandler.getThemePart("frame"), font=("Arial", 14))
     writingbox.pack(padx=(0, 10), side="left", fill="both", expand=True)
     return writingbox
@@ -210,7 +237,7 @@ def listFiles(part, writingBox, previewContainer, TDrenderFrame, updatePreview, 
 
                 with open(path, "r", encoding='utf-8') as file:
                     content = file.read()
-                
+
                 writingBox.delete("1.0", tk.END)
                 writingBox.insert("1.0", content)
 
@@ -232,20 +259,20 @@ def listFiles(part, writingBox, previewContainer, TDrenderFrame, updatePreview, 
                     # -- Frame for Raw File Editor --
                     textEditorFrame = ctk.CTkFrame(TDrenderFrame, fg_color="transparent")
                     textEditorFrame.pack(fill="both", padx=0, pady=0, side="bottom")
-                    
+
                     rawTextEditor = ctk.CTkTextbox(textEditorFrame, fg_color=themeHandler.getThemePart("frame"))
                     rawTextEditor.pack(fill="both", padx=(0, 10), pady=(10, 0), side="left", expand=True)
                     rawTextEditor.insert("1.0", content)
-                    
+
                     # -- Frame for Todo Renderer --
                     renderer = tdRenderer.TodoRenderer(TDrenderFrame, content, path)
                     renderer.pack(expand=True, fill="both")
                     TDrenderFrame.pack(pady=0, padx=(0, 10), expand=True, fill="both", side="top")
-                    
+
                     renderer.tkraise()
                     todoEditorHandler.refreshAll(rawTextEditor, TDrenderFrame, path, sys.modules[__name__])
                     # ^ full ui initialization!
-                
+
             button.configure(command=loadFileContent)
             button.pack(pady=5, padx=10, fill="x")
             print(f"Loaded file: {fileName}")
@@ -262,7 +289,7 @@ def dcRPC(root, saver):
         root.destroy()
 
     root.protocol("WM_DELETE_WINDOW", closing)
-    
+
 # ===== cool funny keybinds =====
 def bindKeybinds(widget, reloadList, updatePreview, saver, filePath=None):
     widget.unbind("<Control-s>")
@@ -271,7 +298,7 @@ def bindKeybinds(widget, reloadList, updatePreview, saver, filePath=None):
     if not filePath or not filePath.endswith(".td"):
         widget.bind("<Control-s>", lambda event: saver.save())
         widget.bind("<Control-S>", lambda event: saver.save())
-    
+
     widget.bind("<Control-n>", lambda event: NTDwindow.newFile(reloadList))
     widget.bind("<Control-N>", lambda event: NTDwindow.newFile(reloadList))
     widget.bind("<Control-q>", lambda event: widget.destroy())

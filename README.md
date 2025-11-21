@@ -11,12 +11,12 @@
     It's also just a hobby project since Dave likes making random stuff :)
 </p>
 
-<h2> 🥅 | What are <b>you</b> trying to acheve as a <b>developer</b>? </h2>
+<h2> 🥅 | What are <b>you</b> trying to achieve as a <b>developer</b>? </h2>
 <p>
     I just want to make a open-source alternatives to other apps. <br>
     I've actually been inspired by alot of open-source apps, so I built up the courage to make one! <br>
     <br>
-    Anyways, I'm tryna' acheve
+    Anyways, I'm tryna' achieve
     <ul>
         <li>⚙️ | Open Source.</li>
         <li>💸 | Free Forever.</li>
